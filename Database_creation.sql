@@ -1,18 +1,5 @@
-﻿--1. Создать базу данных интернет магазина InternetShopDB.
-
-CREATE DATABASE InternetShopDB 
+﻿CREATE DATABASE InternetShopDB 
 ALTER DATABASE InternetShopDB COLLATE Cyrillic_General_CI_AS
-
---2. Создать в базе данных таблицы согласно рис.2.
-
-/*1) Customers (ID,FName,MName,LName,[Address],City,Phone,DateInSystem)
-  2) Employees (ID,FName,MName,LName,Post,Salary,PriorSalary)
-  3) EmployeesInfo (ID,MaritalStatus,BirthDate,[Address],Phone) 
-  4) Products (ID,Name) 
-  5) ProductDetails (ID,Color,[Description])
-  6) Stocks (ProductID, Qty)
-  7) Orders (ID,CustomerID,EmployeeID,OrderDate)
-  8) OrderDetails (OrderID,LineItem,ProductID,Qty,Price,TotalPrice) */
 
 CREATE TABLE Customers
 (
@@ -91,29 +78,14 @@ CREATE TABLE OrderDetails
 )  
 GO
 
-
---3. Установить связи между таблицами согласно рис.1, необходимо предусмотреть условия ссылочной целостности.
-
-/*1) Customers: ID(PK)
-  2) Employees: ID(PK)
-  3) EmployeesInfo: ID(UQ,FK)
-  4) Products: ID(PK) 
-  5) ProductDetails: ID(UQ,FK)
-  6) Stocks: ProductID(UQ,FK)
-  7) Orders: ID(PK), CustomerID(FK), EmployeeID(FK)
-  8) OrderDetails: OrderID,LineItem(PK), OrderID(FK), ProductID(FK) */
-
---таблица Customers
 ALTER TABLE Customers ADD 
 	CONSTRAINT PK_Customers PRIMARY KEY(ID) 
 GO
 
---таблица Employees
 ALTER TABLE Employees ADD 
 	CONSTRAINT PK_Employees PRIMARY KEY(ID) 
 GO
 
---таблица InfoEmployees
 ALTER TABLE EmployeesInfo ADD 
 	CONSTRAINT UQ_EmployeesInfo UNIQUE(ID)
 GO
@@ -124,12 +96,10 @@ ALTER TABLE EmployeesInfo ADD
 	ON DELETE CASCADE
 GO
 
---таблица Products
 ALTER TABLE Products ADD 
 	CONSTRAINT PK_Products PRIMARY KEY (ID) 
 GO
 
---таблица ProductDetails
 ALTER TABLE ProductDetails ADD 
 	CONSTRAINT UQ_ProductDetails UNIQUE(ID)
 GO
@@ -140,7 +110,6 @@ ALTER TABLE ProductDetails ADD
 	ON DELETE CASCADE
 GO
 
---таблица Stocks
 ALTER TABLE Stocks ADD 
 	CONSTRAINT UQ_Stocks UNIQUE(ProductID)
 GO
@@ -151,7 +120,6 @@ ALTER TABLE Stocks ADD
 	ON DELETE CASCADE
 GO
 
---таблица Orders
 ALTER TABLE Orders ADD 
 	CONSTRAINT PK_Orders PRIMARY KEY (ID) 
 GO
@@ -168,7 +136,6 @@ ALTER TABLE Orders ADD CONSTRAINT
 	ON DELETE SET NULL  
 GO
 
---таблица OrderDetails
 ALTER TABLE OrderDetails ADD CONSTRAINT
 	PK_OrderDetails PRIMARY KEY
 	(OrderID,LineItem) 
@@ -186,15 +153,7 @@ ALTER TABLE OrderDetails ADD CONSTRAINT
 		ON DELETE SET NULL 
 GO
 
---4. Создать пользовательские ограничений
-
-/*1) Создать ограничение на корректность ввода номера телефона.
-  2) Создать ограничение, согласно которому в InternetShopDB могут устраиваться кандидаты в возрасте от 18 до 50 лет.
-  3) Создать ограничение, согласно которому заказы могу фиксироватся с дня открытия магазина и до сегодня (день открытия - 90 дней назад).
-  4) Создать ограничение на ввод данных в столбец "Семейное положение" (ввод: Женат, Не женат, Замужем, Не замежем).
-  5) Создать ограничение, согласно которому клиент может быть зарегистрированным в системе с дня открытия и до сегодня.
-  6) Создать ограничение, согласно которому премия не может равняться и быть больше чем зарплата. 
-  7) Создать ограничение, согласно которому остаток товара на складе не может быть отрицательным. */
+-- Создадим пользовательские ограничения
 
 --1)
 ALTER TABLE Customers
@@ -215,8 +174,6 @@ CHECK (BirthDate BETWEEN  DATEADD(YEAR, -50, GETDATE()) AND DATEADD(YEAR, -18, G
 --3)
 ALTER TABLE Orders
 ADD CONSTRAINT CN_Orders_OrderDate
-				 -- DATEADD(DAY, -90, GETDATE()) - вставить данный код вместо константной даты для создания учебной базы
-				 --								   (магазин открылся три месяца назад).
 CHECK (OrderDate >= DATEADD(DAY, -90, GETDATE()) AND OrderDate <= GETDATE())	 
 GO
 
@@ -229,8 +186,6 @@ GO
 --5)
 ALTER TABLE Customers
 ADD CONSTRAINT CN_Customers_DateInSystem
-				    -- DATEADD(DAY, -90, GETDATE()) - вставить данный код вместо константной даты для создания учебной базы
-				    --								  (магазин открылся три месяца назад).
 CHECK (DateInSystem >= DATEADD(DAY, -90, GETDATE()) AND DateInSystem <= GETDATE())	 
 GO
 
@@ -246,7 +201,7 @@ ADD CONSTRAINT CN_Stocks_Qty
 CHECK (Qty >= 0)	 
 GO
 
--- 5. Наполнить таблицы данными. 
+-- 5. Наполним таблицы данными. 
 INSERT Customers 
 (FName, MName, LName, [Address], City, Phone, DateInSystem)
 VALUES
@@ -409,4 +364,3 @@ SELECT * FROM Orders
 SELECT * FROM Products
 SELECT * FROM ProductDetails
 SELECT * FROM OrderDetails
-
